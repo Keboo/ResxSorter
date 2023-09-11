@@ -53,13 +53,13 @@ jobs:
           if-no-files-found: error
 
       - name: dotnet pack
-        run: dotnet pack --configuration Release --no-build -o .${{env.DOTNET_ROOT}}/NuGet
+        run: dotnet pack --configuration Release --no-build -o ./NuGet
 
       - name: Upload NuGet artifact
         uses: actions/upload-artifact@v3
         with:
           name: NuGet
-          path: ${{env.DOTNET_ROOT}}/NuGet
+          path: ./NuGet
 
   automerge:
     if: ${{ github.event_name == 'pull_request' }}
