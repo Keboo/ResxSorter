@@ -1,0 +1,78 @@
+using System.CommandLine;
+using System.Data;
+using System.Xml.Linq;
+
+namespace ResxSorter.Tests;
+
+public class ProgramTests
+{
+    [Fact]
+    public async Task Invoke_WithHelpOption_DisplaysHelp()
+    {
+        using StringWriter stdOut = new();
+        int exitCode = await Invoke("--help", stdOut);
+        
+        Assert.Equal(0, exitCode);
+        Assert.Contains("--help", stdOut.ToString());
+    }
+
+    [Fact]
+    public async Task Invoke_WithOutputFile_SortsElementsIntoNewFile()
+    {
+        using StringWriter stdOut = new();
+        int exitCode = await Invoke("-i Resources.resx -o TestOutput.resx", stdOut);
+
+        Assert.Equal(0, exitCode);
+        Assert.True(File.Exists("TestOutput.resx"));
+        using Stream outputStream = File.OpenRead("TestOutput.resx");
+        XDocument doc = XDocument.Load(outputStream);
+        var names = doc.Descendants().Where(x => x.Name.LocalName == "data")
+            .Select(x => x.Attributes().Single(x => x.Name.LocalName == "name").Value)
+            .ToList();
+
+        var sorted = names.OrderBy(x => x).ToList();
+        Assert.Equal(sorted, names);
+    }
+
+    [Fact]
+    public async Task Invoke_WithoutOutputFile_SortsElementsIntoSourceFile()
+    {
+        File.Copy("Resources.resx", "Resources.Dup.resx", true);
+        using StringWriter stdOut = new();
+        int exitCode = await Invoke("-i Resources.Dup.resx", stdOut);
+
+        Assert.Equal(0, exitCode);
+        Assert.True(File.Exists("Resources.Dup.resx"));
+        using Stream outputStream = File.OpenRead("Resources.Dup.resx");
+        XDocument doc = XDocument.Load(outputStream);
+        var names = doc.Descendants().Where(x => x.Name.LocalName == "data")
+            .Select(x => x.Attributes().Single(x => x.Name.LocalName == "name").Value)
+            .ToList();
+
+        var sorted = names.OrderBy(x => x).ToList();
+        Assert.Equal(sorted, names);
+    }
+
+    [Fact]
+    public async Task Invoke_WithoutSortedFile_DoesNothing()
+    {
+        using StringWriter stdOut = new();
+
+        DateTime lastWriteTime = File.GetLastWriteTime("Resources.Sorted.resx");
+
+        int exitCode = await Invoke("-i Resources.Sorted.resx", stdOut);
+
+        Assert.Equal(0, exitCode);
+        Assert.True(File.Exists("Resources.Sorted.resx"));
+        
+        DateTime afterLastWriteTime = File.GetLastWriteTime("Resources.Sorted.resx");
+        Assert.Equal(lastWriteTime, afterLastWriteTime);
+    }
+
+    private static Task<int> Invoke(string commandLine, StringWriter console)
+    {
+        CliConfiguration configuration = Program.GetConfiguration();
+        configuration.Output = console;
+        return configuration.InvokeAsync(commandLine);
+    }
+}

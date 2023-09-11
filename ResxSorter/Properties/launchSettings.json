@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "ResxSorter": {
+      "commandName": "Project"
+    },
+    "Display Help": {
+      "commandName": "Project",
+      "commandLineArgs": "--help"
+    }
+  }
+}
