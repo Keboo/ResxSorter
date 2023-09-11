@@ -11,6 +11,7 @@
     https://learn.microsoft.com/dotnet/core/tools/global-tools-how-to-create
   -->
   <PropertyGroup>
+    <PackageId>Keboo.ResxSorter</PackageId>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>ResxSorter</ToolCommandName>
   </PropertyGroup>
