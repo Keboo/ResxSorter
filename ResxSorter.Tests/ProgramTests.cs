@@ -23,15 +23,7 @@ public class ProgramTests
         int exitCode = await Invoke("-i Resources.resx -o TestOutput.resx", stdOut);
 
         Assert.Equal(0, exitCode);
-        Assert.True(File.Exists("TestOutput.resx"));
-        using Stream outputStream = File.OpenRead("TestOutput.resx");
-        XDocument doc = XDocument.Load(outputStream);
-        var names = doc.Descendants().Where(x => x.Name.LocalName == "data")
-            .Select(x => x.Attributes().Single(x => x.Name.LocalName == "name").Value)
-            .ToList();
-
-        var sorted = names.OrderBy(x => x).ToList();
-        Assert.Equal(sorted, names);
+        AssertIsSorted("TestOutput.resx");
     }
 
     [Fact]
@@ -42,19 +34,11 @@ public class ProgramTests
         int exitCode = await Invoke("-i Resources.Dup.resx", stdOut);
 
         Assert.Equal(0, exitCode);
-        Assert.True(File.Exists("Resources.Dup.resx"));
-        using Stream outputStream = File.OpenRead("Resources.Dup.resx");
-        XDocument doc = XDocument.Load(outputStream);
-        var names = doc.Descendants().Where(x => x.Name.LocalName == "data")
-            .Select(x => x.Attributes().Single(x => x.Name.LocalName == "name").Value)
-            .ToList();
-
-        var sorted = names.OrderBy(x => x).ToList();
-        Assert.Equal(sorted, names);
+        AssertIsSorted("Resources.Dup.resx");
     }
 
     [Fact]
-    public async Task Invoke_WithoutSortedFile_DoesNothing()
+    public async Task Invoke_WithSortedFile_DoesNothing()
     {
         using StringWriter stdOut = new();
 
@@ -69,10 +53,36 @@ public class ProgramTests
         Assert.Equal(lastWriteTime, afterLastWriteTime);
     }
 
+    [Fact]
+    public async Task Invoke_WithSortedFileAndOutputFile_OutputsToNewFile()
+    {
+        using StringWriter stdOut = new();
+
+        DateTime lastWriteTime = File.GetLastWriteTime("Resources.Sorted.resx");
+
+        int exitCode = await Invoke("-i Resources.Sorted.resx -o MyResources.Sorted.resx", stdOut);
+
+        Assert.Equal(0, exitCode);
+        AssertIsSorted("MyResources.Sorted.resx");
+    }
+
     private static Task<int> Invoke(string commandLine, StringWriter console)
     {
         CliConfiguration configuration = Program.GetConfiguration();
         configuration.Output = console;
         return configuration.InvokeAsync(commandLine);
+    }
+
+    private static void AssertIsSorted(string filePath)
+    {
+        Assert.True(File.Exists(filePath));
+        using Stream outputStream = File.OpenRead(filePath);
+        XDocument doc = XDocument.Load(outputStream);
+        var names = doc.Descendants().Where(x => x.Name.LocalName == "data")
+            .Select(x => x.Attributes().Single(x => x.Name.LocalName == "name").Value)
+            .ToList();
+
+        var sorted = names.OrderBy(x => x).ToList();
+        Assert.Equal(sorted, names);
     }
 }

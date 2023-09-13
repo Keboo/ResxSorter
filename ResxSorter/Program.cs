@@ -43,8 +43,8 @@ public sealed class Program
             FileInfo? outputFile = parseResult.CommandResult.GetValue(outputFileOption);
             bool? force = parseResult.CommandResult.GetValue(forceOption);
 
-            bool needsSort = force == true;
-            if (!needsSort)
+            bool writeOutputFile = force == true;
+            if (!writeOutputFile)
             {
                 using Stream inputStream = inputFile.OpenRead();
                 XDocument document = XDocument.Load(inputStream);
@@ -55,13 +55,13 @@ public sealed class Program
                     string resourceName = element.Attributes().Single(x => x.Name.LocalName == "name").Value;
                     if (string.Compare(lastName, resourceName) > 0)
                     {
-                        needsSort = true;
+                        writeOutputFile = true;
                         break;
                     }
                     lastName = resourceName;
                 }
             }
-            if (needsSort)
+            if (writeOutputFile || outputFile?.Exists == false)
             {
                 using MemoryStream ms = new();
                 using (Stream inputStream = inputFile.OpenRead())
