@@ -23,6 +23,11 @@ public sealed class Program
         {
             Description = "The output file."
         };
+        CliOption<bool> forceOption = new("--force", "-f")
+        {
+            Description = "Always write the output, even if there is no change."
+        };
+
 
         CliRootCommand rootCommand = new("Sorts elements in a resx file")
         {
@@ -35,10 +40,12 @@ public sealed class Program
         {
             FileInfo inputFile = parseResult.CommandResult.GetValue(inputFileOption)!;
             FileInfo? outputFile = parseResult.CommandResult.GetValue(outputFileOption);
+            bool? force = parseResult.CommandResult.GetValue(forceOption);
 
-            bool needsSort = false;
-            using (Stream inputStream = inputFile.OpenRead())
+            bool needsSort = force == true;
+            if (!needsSort)
             {
+                using Stream inputStream = inputFile.OpenRead();
                 XDocument document = XDocument.Load(inputStream);
                 //Check if the elements are ordered
                 string lastName = "";
@@ -76,6 +83,7 @@ public sealed class Program
                 ms.Position = 0;
                 if (outputFile != null)
                 {
+                    outputFile.Directory?.Create();
                     using Stream outputStream = outputFile.OpenWrite();
                     ms.CopyTo(outputStream);
                 }
