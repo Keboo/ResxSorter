@@ -33,7 +33,8 @@ public sealed class Program
         {
             new CliCommand("no-op"),
             inputFileOption,
-            outputFileOption
+            outputFileOption,
+            forceOption
         };
 
         rootCommand.SetAction((ParseResult parseResult) =>
