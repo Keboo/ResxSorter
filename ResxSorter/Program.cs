@@ -1,5 +1,4 @@
 ﻿using System.CommandLine;
-using System.Reflection.Metadata;
 using System.Xml.Linq;
 
 namespace ResxSorter;
@@ -27,6 +26,7 @@ public sealed class Program
 
         CliRootCommand rootCommand = new("Sorts elements in a resx file")
         {
+            new CliCommand("no-op"),
             inputFileOption,
             outputFileOption
         };

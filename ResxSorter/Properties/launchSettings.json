@@ -1,7 +1,8 @@
 {
   "profiles": {
     "ResxSorter": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "no-op"
     },
     "Display Help": {
       "commandName": "Project",
