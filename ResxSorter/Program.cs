@@ -27,7 +27,10 @@ public sealed class Program
         {
             Description = "Always write the output, even if there is no change."
         };
-
+        CliOption<bool> verboseOption = new("--verbose", "-v")
+        {
+            Description = "Write verbose output"
+        };
 
         CliRootCommand rootCommand = new("Sorts elements in a resx file")
         {
@@ -41,9 +44,15 @@ public sealed class Program
         {
             FileInfo inputFile = parseResult.CommandResult.GetValue(inputFileOption)!;
             FileInfo? outputFile = parseResult.CommandResult.GetValue(outputFileOption);
-            bool? force = parseResult.CommandResult.GetValue(forceOption);
+            bool force = parseResult.CommandResult.GetValue(forceOption);
+            bool verbose = parseResult.CommandResult.GetValue(verboseOption);
 
-            bool writeOutputFile = force == true;
+            if (verbose)
+            {
+                Console.WriteLine($"Input {inputFile}, Output: {outputFile}, Force: {force}");
+            }
+
+            bool writeOutputFile = force;
             if (!writeOutputFile)
             {
                 using Stream inputStream = inputFile.OpenRead();
@@ -59,6 +68,17 @@ public sealed class Program
                         break;
                     }
                     lastName = resourceName;
+                }
+                if (verbose)
+                {
+                    if (writeOutputFile)
+                    {
+                        Console.WriteLine($"Input {inputFile} is not sorted");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Input {inputFile} is already sorted");
+                    }
                 }
             }
             if (writeOutputFile || outputFile?.Exists == false)
@@ -84,12 +104,20 @@ public sealed class Program
                 ms.Position = 0;
                 if (outputFile != null)
                 {
+                    if (verbose)
+                    {
+                        Console.WriteLine($"Writing sorted file to {outputFile}");
+                    }
                     outputFile.Directory?.Create();
                     using Stream outputStream = outputFile.OpenWrite();
                     ms.CopyTo(outputStream);
                 }
                 else
                 {
+                    if (verbose)
+                    {
+                        Console.WriteLine($"Overwriting input file with sorted data {inputFile}");
+                    }
                     using Stream outputStream = inputFile.OpenWrite();
                     ms.CopyTo(outputStream);
                 }
