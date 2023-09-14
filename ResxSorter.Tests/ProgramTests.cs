@@ -64,6 +64,7 @@ public class ProgramTests
 
         Assert.Equal(0, exitCode);
         AssertIsSorted("MyResources.Sorted.resx");
+        Assert.Equal(lastWriteTime, File.GetLastWriteTime("Resources.Sorted.resx"));
     }
 
     private static Task<int> Invoke(string commandLine, StringWriter console)
