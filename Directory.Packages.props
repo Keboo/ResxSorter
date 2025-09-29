@@ -28,7 +28,7 @@
     <PackageVersion Include="Moq.AutoMock" Version="3.5.0" />
     <PackageVersion Include="System.CommandLine" Version="2.0.0-rc.2.25468.104" />
     <PackageVersion Include="xunit" Version="2.9.3" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.4">
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageVersion>
