@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    <Version>1.0.0</Version>
+    <TargetFramework>net10.0</TargetFramework>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <!-- 
@@ -14,7 +14,15 @@
     <PackageId>Keboo.ResxSorter</PackageId>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>ResxSorter</ToolCommandName>
+    <!-- The recommended size for the icon is 128x128: https://learn.microsoft.com/nuget/reference/msbuild-targets#packing-an-icon-image-file -->
+    <PackageIcon>NuGetIcon.png</PackageIcon>
+    <PackageReadmeFile>NUGET_README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="NuGetIcon.png" Pack="true" PackagePath="\" />
+    <None Include="..\NUGET_README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="System.CommandLine" />
