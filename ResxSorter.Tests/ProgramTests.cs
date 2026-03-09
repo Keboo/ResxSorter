@@ -1,5 +1,5 @@
 using System.CommandLine;
-using System.Data;
+using System.CommandLine.Parsing;
 using System.Xml.Linq;
 
 namespace ResxSorter.Tests;
@@ -69,9 +69,10 @@ public class ProgramTests
 
     private static Task<int> Invoke(string commandLine, StringWriter console)
     {
-        CliConfiguration configuration = Program.GetConfiguration();
-        configuration.Output = console;
-        return configuration.InvokeAsync(commandLine);
+        RootCommand rootCommand = Program.GetRootCommand();
+        ParseResult parseResult = rootCommand.Parse(commandLine, new ParserConfiguration());
+        InvocationConfiguration config = new() { Output = console };
+        return parseResult.InvokeAsync(config);
     }
 
     private static void AssertIsSorted(string filePath)

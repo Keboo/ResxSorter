@@ -1,4 +1,5 @@
 ﻿using System.CommandLine;
+using System.CommandLine.Parsing;
 using System.Xml.Linq;
 
 namespace ResxSorter;
@@ -7,34 +8,35 @@ public sealed class Program
 {
     private static Task<int> Main(string[] args)
     {
-        CliConfiguration configuration = GetConfiguration();
-        return configuration.InvokeAsync(args);
+        RootCommand rootCommand = GetRootCommand();
+        ParseResult parseResult = rootCommand.Parse(args, new ParserConfiguration());
+        return parseResult.InvokeAsync(new InvocationConfiguration());
     }
 
-    public static CliConfiguration GetConfiguration()
+    public static RootCommand GetRootCommand()
     {
-        CliOption<FileInfo> inputFileOption = new("--input-file", "-i")
+        Option<FileInfo> inputFileOption = new("--input-file", "-i")
         {
             Description = "The input resx file",
             Required = true,
         };
         inputFileOption.AcceptExistingOnly();
-        CliOption<FileInfo> outputFileOption = new("--output-file", "-o")
+        Option<FileInfo> outputFileOption = new("--output-file", "-o")
         {
             Description = "The output file."
         };
-        CliOption<bool> forceOption = new("--force", "-f")
+        Option<bool> forceOption = new("--force", "-f")
         {
             Description = "Always write the output, even if there is no change."
         };
-        CliOption<bool> verboseOption = new("--verbose", "-v")
+        Option<bool> verboseOption = new("--verbose", "-v")
         {
             Description = "Write verbose output"
         };
 
-        CliRootCommand rootCommand = new("Sorts elements in a resx file")
+        RootCommand rootCommand = new("Sorts elements in a resx file")
         {
-            new CliCommand("no-op"),
+            new Command("no-op", "No operation"),
             inputFileOption,
             outputFileOption,
             forceOption
@@ -42,10 +44,10 @@ public sealed class Program
 
         rootCommand.SetAction((ParseResult parseResult) =>
         {
-            FileInfo inputFile = parseResult.CommandResult.GetValue(inputFileOption)!;
-            FileInfo? outputFile = parseResult.CommandResult.GetValue(outputFileOption);
-            bool force = parseResult.CommandResult.GetValue(forceOption);
-            bool verbose = parseResult.CommandResult.GetValue(verboseOption);
+            FileInfo inputFile = parseResult.GetValue(inputFileOption)!;
+            FileInfo? outputFile = parseResult.GetValue(outputFileOption);
+            bool force = parseResult.GetValue(forceOption);
+            bool verbose = parseResult.GetValue(verboseOption);
 
             if (verbose)
             {
@@ -124,6 +126,6 @@ public sealed class Program
             }
 
         });
-        return new CliConfiguration(rootCommand);
+        return rootCommand;
     }
 }
